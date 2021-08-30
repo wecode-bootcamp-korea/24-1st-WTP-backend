@@ -1,7 +1,7 @@
 DATABASES = {
     'default' : {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'DATABASE 명',
+        'NAME': 'atchapedia',
         'USER': 'root',
         'PASSWORD': 'DB접속용 비밀번호',
         'HOST': '127.0.0.1',
