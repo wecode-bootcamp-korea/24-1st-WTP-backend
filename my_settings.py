@@ -3,7 +3,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'atchapedia',
         'USER': 'root',
-        'PASSWORD': 'DB접속용 비밀번호',
+        'PASSWORD': 'Ws9518ws9518!',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
