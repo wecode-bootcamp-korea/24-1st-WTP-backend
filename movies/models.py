@@ -14,7 +14,7 @@ class Movie(models.Model):
     poster_image   = models.CharField(max_length=300)
     trailer        = models.CharField(max_length=300)
     participant    = models.ManyToManyField("Participant")
-    user           = models.ManyToManyField("User")
+    user           = models.ManyToManyField(User)
     genre          = models.ManyToManyField("Genre")
     country        = models.ManyToManyField("Country")
 
