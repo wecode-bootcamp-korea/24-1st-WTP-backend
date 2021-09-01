@@ -14,10 +14,10 @@ class Movie(models.Model):
     poster_image   = models.URLField(max_length=300)
     trailer        = models.CharField(max_length=300, null=True)
     participant    = models.ManyToManyField("Participant", through="MovieParticipant")
-    user           = models.ManyToManyField(User, through="Rating", related_name="rater")
-    user           = models.ManyToManyField(User, through="WishList", related_name="wisher")
-    genre          = models.ManyToManyField("Genre")
-    country        = models.ManyToManyField("Country")
+    user_rating    = models.ManyToManyField(User, through="Rating", related_name="rater")
+    user_wish      = models.ManyToManyField(User, through="WishList", related_name="wisher")
+    genre          = models.ManyToManyField("Genre", through="MovieGenre")
+    country        = models.ManyToManyField("Country", through="MovieCountry")
 
     class Meta:
         db_table = "movies"
@@ -48,7 +48,7 @@ class MovieParticipant(models.Model):
 
 
 class Rating(models.Model):
-    user    = models.ForeignKey(User, on_delete=models.CASCADE)
+    user    = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     movie   = models.ForeignKey("Movie", on_delete=models.CASCADE)
     rate    = models.DecimalField(max_digits=2, decimal_places=1)
     comment = models.CharField(max_length=300)
