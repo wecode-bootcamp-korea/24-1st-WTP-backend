@@ -7,7 +7,7 @@ from movies.models import *
 from users.models import User
 
 
-class GetKoreanMovieList(View):
+class GetKoreaMovieList(View):
     def get(self,request):
         data = json.loads(request.body)
         
