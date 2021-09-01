@@ -1,17 +1,18 @@
 from django.db import models
+from django.db.models.deletion import SET_DEFAULT
 
 from users.models import User
 
 
 class Movie(models.Model):
-    title          = models.CharField(max_length=100)
+    title          = models.CharField(max_length=100) 
     release_date   = models.DateField()
-    description    = models.TextField()
+    description    = models.TextField(SET_DEFAULT="등록된 소개글이 없습니다.")
     running_time   = models.IntegerField()
     average_rating = models.DecimalField(max_digits=2, decimal_places=1)
     grade          = models.ForeignKey("Grade", on_delete=models.SET_NULL)
     poster_image   = models.URLField(max_length=300)
-    trailer        = models.CharField(max_length=300)
+    trailer        = models.CharField(max_length=300, null=True, on_delete=models.SET_NULL)
     participant    = models.ManyToManyField("Participant", through="MovieParticipant")
     user           = models.ManyToManyField(User, through="Rating", related_name="rater")
     user           = models.ManyToManyField(User, through="WishList", related_name="wisher")
