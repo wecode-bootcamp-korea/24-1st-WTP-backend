@@ -2,11 +2,12 @@ import json
 import re
 import bcrypt
 
-from django.http.response import JsonResponse
-from django.shortcuts import render
-from users.models     import User
-from django.views     import View
-from django.http      import JsonResponse
+from django.http.response   import JsonResponse
+from django.shortcuts       import render
+from django.views           import View
+from django.http            import JsonResponse
+
+from users.models           import User
 
 
 class SignUpView(View):
@@ -33,9 +34,7 @@ class SignUpView(View):
             if User.objects.filter(email = sign_up_email).exists():
                 return JsonResponse({'MESSAGE':'Existed E-Mail'}, status = 400)
 
-            salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(sign_up_password.encode('utf-8'), salt)
-            decoded_password = hashed_password.decode('utf-8')
+            decoded_password = bcrypt.hashpw(sign_up_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             
             # User Registration
             User.objects.create(
@@ -44,7 +43,10 @@ class SignUpView(View):
                 password = decoded_password,
             )
 
-            return JsonResponse({'MESSAGE':'User Registered!'}, status = 200)
+            return JsonResponse({'MESSAGE':'User Registered!'}, status = 201)
 
         except KeyError:
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status = 400)
+
+        except ValueError:
+            return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status = 400)
