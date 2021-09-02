@@ -5,19 +5,10 @@ from django.http      import JsonResponse
 from django.views     import View
 
 from users.models     import User
-from my_settings      import SECRET_KEY
+from my_settings      import SECRET_KEY, ALGORITHM
 
 
 class Login(View):
-    '''
-    input:
-        data['name']
-        data['email']
-        data['password']
-    
-    login, jwt(decorater), 
-    
-    '''
 
     def post(self, request):
         
@@ -33,11 +24,7 @@ class Login(View):
             if not bcrypt.checkpw(data['password'].encode(), current_user.password.encode()):
                 return JsonResponse({"message": "비밀번호가 일치하지 않습니다!"}, status=401)
                 
-            ####
-            # jWt 토큰 발급
-            ####
-            
-            token = jwt.encode({"id": current_user.id}, SECRET_KEY, algorithm='HS256')
+            token = jwt.encode({"id": current_user.id}, SECRET_KEY, algorithm=ALGORITHM)
 
             return JsonResponse({
                 "message": "accepted",
@@ -46,3 +33,6 @@ class Login(View):
 
         except KeyError:
             return JsonResponse({"message": "KEY ERROR"}, status=400)
+
+        except ValueError:
+            return JsonResponse({"message": "VALUE ERROR"}, status=400)
