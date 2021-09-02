@@ -40,7 +40,7 @@ class SignUpView(View):
             User.objects.create(
                 name     = sign_up_name,
                 email    = sign_up_email,
-                password = decoded_password,
+                password = decoded_password
             )
 
             return JsonResponse({'MESSAGE':'User Registered!'}, status = 201)
