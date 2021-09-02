@@ -23,7 +23,7 @@ class SignUpView(View):
                 return JsonResponse({'MESSAGE' : 'Wrong Name Form'}, status = 400)
 
             # E-mail Validation
-            if not re.match('^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$', sign_up_email):
+            if not re.match('^[a-zA-Z\d+-.]+@[a-zA-Z\d+-.]+\.[a-zA-Z]{2,3}$', sign_up_email):
                 return JsonResponse({'MESSAGE' : 'Wrong E-mail Form'}, status = 400)
 
             # Password Validation
