@@ -361,4 +361,14 @@ zsdoc/data
 
 my_settings.py
 
+uploader.py
 
+countries.csv
+
+genres.csv
+
+grades.csv
+
+movies.csv
+
+movies_countries.csv
