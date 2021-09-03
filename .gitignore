@@ -361,4 +361,9 @@ zsdoc/data
 
 my_settings.py
 
+movie.csv
+grade.csv
+genre.csv
+country.csv
 
+management
