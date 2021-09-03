@@ -14,8 +14,6 @@ class MovieDetailView(View):
 
         title          = movie.title
         release_date   = movie.release_date
-        # genre          = movie.genre
-        # country        = movie.country
         average_rating = movie.average_rating
         poster_image   = movie.poster_image
         trailer        = movie.trailer
@@ -24,10 +22,10 @@ class MovieDetailView(View):
             'title'          : title,
             'release_date'   : release_date,
             'genre'          : [genre.name for genre in movie.genre.all()],
-            'country'        : [country.name for country in movie.countr.all()],
+            'country'        : [country.name for country in movie.country.all()],
             'average_rating' : average_rating,
             'poster_image'   : poster_image,
             'trailer'        : trailer
         }
 
-        return JsonResponse({'MOVIE INFO': movie_details}, status = 200)
+        return JsonResponse({'movie_info': movie_details}, status = 200)
