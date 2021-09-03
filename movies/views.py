@@ -6,7 +6,6 @@ from movies.models    import *
 class MovieDetailView(View):
     def get(self, request, movie_id):
         
-
         if not Movie.objects.filter(id = movie_id).exists():
             return JsonResponse({'MESSAGE':'Movie Not Exists'}, status = 404)
 
