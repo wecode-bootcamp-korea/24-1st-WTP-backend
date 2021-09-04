@@ -18,13 +18,13 @@ class MovieView(View):
         if not country_name and not genre1 and not genre2 and not rating:
             return JsonResponse({"MESSAGE" : "PARAMETER_DOSE_NOT_EXIST"}, status=400)
         
-        movies = Movie.objects.filter(country__name="한국").order_by('-id')[OFFSET : LIMIT]
+        movies = Movie.objects.filter(country__name="한국").order_by('-release_date')[OFFSET : LIMIT]
         
         if country_name == "외국":
-            movies = Movie.objects.exclude(country__name="한국").filter(country__name__isnull = False).distinct().order_by('-id')[OFFSET : LIMIT]
+            movies = Movie.objects.exclude(country__name="한국").filter(country__name__isnull = False).distinct().order_by('-release_date')[OFFSET : LIMIT]
    
-        if genre1 or genre2:
-            movies = Movie.objects.filter(genre__name=genre1 or genre2, genre__name__isnull = False).order_by('-id').distinct()[OFFSET : LIMIT]
+        if genre1 and genre2:
+            movies = Movie.objects.filter(genre__name=genre1 and genre2, genre__name__isnull = False).order_by('-release_date').distinct()[OFFSET : LIMIT]
 
         if rating:
             movies =  Movie.objects.order_by('-average_rating').filter(country__name__isnull = False)[OFFSET : LIMIT]
