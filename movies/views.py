@@ -1,9 +1,9 @@
 import json
 
 from django.views import View
-from django.http import JsonResponse, request
+from django.http import JsonResponse
 
-from movies.models import Country, Movie, Genre
+from movies.models import Movie
 
 class MovieView(View): 
     def get(self,request): 
