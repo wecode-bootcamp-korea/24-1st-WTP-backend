@@ -15,7 +15,7 @@ class MovieView(View):
         LIMIT        = 25
         OFFSET       = 0
 
-        if not country_name and not genre1 and not rating:
+        if not country_name and not genre1 and not genre2 and not rating:
             return JsonResponse({"MESSAGE" : "PARAMETER_DOSE_NOT_EXIST"}, status=400)
         
         movies = Movie.objects.filter(country__name="한국").order_by('-id')[OFFSET : LIMIT]
