@@ -17,10 +17,27 @@ class MovieDetailView(View):
         poster_image   = movie.poster_image
         trailer        = movie.trailer
 
+        # # 1
+        # image_url = [image.image_url for image in movie.image_set.all()]
+
+        # 2
         image_url = []
         images = Image.objects.filter(movie_id = movie_id)
         for image in images:
             image_url.append(image.image_url)
+
+        participants = []
+        movie_participants = MovieParticipant.objects.filter(movie = movie_id)
+        for movie_participant in movie_participants:
+            participants.append(
+                {
+                    'name' : movie_participant.participant.name,
+                    'role' : movie_participant.role,
+                    'image' : movie_participant.participant.image_url
+                }
+            )
+
+        print(participants)
 
         movie_details = {
             'title'          : title,
@@ -31,6 +48,7 @@ class MovieDetailView(View):
             'poster_image'   : poster_image,
             'trailer'        : trailer,
             'image_url'      : image_url,
+            'participants'   : participants,
         }
 
         return JsonResponse({'movie_info': movie_details}, status = 200)
