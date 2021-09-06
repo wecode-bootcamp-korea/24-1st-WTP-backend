@@ -1,8 +1,14 @@
 from pathlib     import Path
 from my_settings import DATABASES, SECRET_KEY
 
+<<<<<<< HEAD
 import pymysql
 pymysql.install_as_MySQLdb()
+=======
+# import pymysql
+
+# pymysql.install_as_MySQLdb()
+>>>>>>> a175a373d873753f84ab32ebb14fe8d1fd55ed48
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
