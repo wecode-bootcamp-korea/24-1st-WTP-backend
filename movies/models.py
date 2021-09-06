@@ -11,8 +11,8 @@ class Movie(models.Model):
     running_time   = models.IntegerField()
     average_rating = models.DecimalField(max_digits=2, decimal_places=1)
     grade          = models.ForeignKey("Grade", null=True, on_delete=models.SET_NULL)
-    poster_image   = models.URLField(max_length=300)
-    trailer        = models.CharField(max_length=300, null=True)
+    poster_image   = models.URLField(max_length=500)
+    trailer        = models.CharField(max_length=500, null=True)
     participant    = models.ManyToManyField("Participant", through="MovieParticipant")
     user_rating    = models.ManyToManyField(User, through="Rating", related_name="rater")
     user_wish      = models.ManyToManyField(User, through="WishList", related_name="wisher")
@@ -31,8 +31,8 @@ class Grade(models.Model):
 
 
 class Participant(models.Model):
-    name      = models.CharField(max_length=45)
-    image_url = models.URLField(max_length=300)
+    name      = models.CharField(max_length=100)
+    image_url = models.URLField(max_length=500)
 
     class Meta:
         db_table = "participants"
@@ -82,7 +82,7 @@ class MovieGenre(models.Model):
 
 
 class Image(models.Model):
-    image_url = models.URLField(max_length=300)
+    image_url = models.URLField(max_length=500)
     movie     = models.ForeignKey("Movie", on_delete=models.CASCADE)
 
     class Meta:

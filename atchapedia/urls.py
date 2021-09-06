@@ -5,5 +5,6 @@ from users.views import Login
 
 urlpatterns = [
     path('users', include('users.urls')),
+    path('details', include('movies.urls')),
 ]
 
