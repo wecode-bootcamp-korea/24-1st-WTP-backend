@@ -20,8 +20,6 @@ def login_decorator(func):
         except jwt.exceptions.DecodeError:                                   
             return JsonResponse({'message' : '일치하지 않는 토큰입니다.' }, status=400)
 
-        
-
         return func(self, request, *args, **kwargs)
 
     return wrapper
