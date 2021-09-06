@@ -44,30 +44,3 @@ class MovieView(View):
         } for movie in movies ][OFFSET : LIMIT]
 
         return JsonResponse({"MOVIE_LIST" : movie_list}, status=200)
-
-#평점매긴 영화리스트가져오기
-class RatingView(View):
-
-    def get(self,request,user_id):
-        user1 = User.objects.get(id=user_id)
-
-        if not user1 :
-            return JsonResponse({"MESSAGE" : "USER_DOES_NOT_EXIST"}, status=404)
-            
-        ratings = Rating.objects.filter(user__id=user_id).order_by('-id')
-        
-        rated_movies = [{
-            "poster_image" : rating.movie.poster_image,
-            "movie_name"   : rating.movie.title ,
-            "movie_rating" : rating.rate
-        } for rating in ratings]
-
-        return JsonResponse({"RATED_MOVIES" : rated_movies}, status=200)
-
-
-# #댓글 등록 및 사용자의 댓글 특정 영화 또는 전체 영화에 남긴 댓글 호출 구현            
-# class Commment(View):
-#     def post(self, request, user):
-#         data = json.loads(request.body)
-#         Rating.objects.create(user_id=user)
-
