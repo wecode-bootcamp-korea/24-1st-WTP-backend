@@ -16,6 +16,7 @@ class MovieDetailView(View):
         average_rating = movie.average_rating
         poster_image   = movie.poster_image
         trailer        = movie.trailer
+        image_url      = movie.image_url
 
         movie_details = {
             'title'          : title,
@@ -24,7 +25,8 @@ class MovieDetailView(View):
             'country'        : [country.name for country in movie.country.all()],
             'average_rating' : average_rating,
             'poster_image'   : poster_image,
-            'trailer'        : trailer
+            'trailer'        : trailer,
+            'image_url'      : image_url
         }
 
         return JsonResponse({'movie_info': movie_details}, status = 200)
