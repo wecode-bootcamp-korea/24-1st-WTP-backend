@@ -6,30 +6,34 @@ from django.http import JsonResponse
 
 from movies.models import Movie
 
+
 class MovieView(View): 
     def get(self,request): 
-
         country_name = request.GET.get("country")
         genre1       = request.GET.get("genre1")
         genre2       = request.GET.get("genre2")
         rating       = request.GET.get("rating","")
+        KOREAN_MOVIE = "한국"
+        FOREIGN_MOVIE = "외국"
         LIMIT        = 25
         OFFSET       = 0
 
-        movies = Movie.objects.all().filter(country__name__isnull = False).order_by('-release_date').distinct()
+        q = Q()
         
-        if country_name == "한국":
-            movies.filter(Q(country__name=country_name)).order_by('-release_date')
+        if country_name == KOREAN_MOVIE:
+            q.add(Q(country__name=KOREAN_MOVIE), q.AND)
 
-        if country_name == "외국":
-            movies.filter(~Q(country__name=country_name)).filter(country__name__isnull = False).order_by('-release_date').distinct()
+        if country_name == FOREIGN_MOVIE:
+            q.add(~Q(country__name=KOREAN_MOVIE), q.AND)
 
         if genre1 or genre2:
-            movies = Movie.objects.filter(Q(genre__name=genre1)|Q(genre__name=genre2)).filter(genre__name__isnull = False).order_by('-release_date').distinct()
-
-        if rating:
-            movies =  Movie.objects.order_by('-average_rating').filter(country__name__isnull = False)
+            q.add(Q(genre__name=genre1)|Q(genre__name=genre2), q.AND)
         
+        movies = Movie.objects.filter(q).order_by('-release_date').distinct()
+        
+        if rating:
+            movies =  Movie.objects.order_by('-average_rating')
+  
         movie_list = [{
             "country_name"   : [country.name for country in movie.country.all()], 
             "movie_name"     : movie.title,
