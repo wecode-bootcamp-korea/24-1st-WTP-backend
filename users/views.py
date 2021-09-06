@@ -1,4 +1,5 @@
 import json, bcrypt
+from json.decoder import JSONDecodeError
 import jwt
 
 from django.http      import JsonResponse
@@ -34,5 +35,5 @@ class Login(View):
         except KeyError:
             return JsonResponse({"message": "KEY ERROR"}, status=400)
 
-        except ValueError:
-            return JsonResponse({"message": "VALUE ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message": "INVALID DATA FORMAT"}, status=400)
