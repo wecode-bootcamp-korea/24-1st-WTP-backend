@@ -5,6 +5,7 @@ from django.http import JsonResponse
 
 from movies.models import Movie
 
+
 class MovieView(View): 
     def get(self,request): 
 
@@ -15,10 +16,10 @@ class MovieView(View):
         LIMIT        = 25
         OFFSET       = 0
 
-        if not country_name and not genre1 and not genre2 and not rating:
-            return JsonResponse({"MESSAGE" : "PARAMETER_DOSE_NOT_EXIST"}, status=400)
+        movies = Movie.objects.all().filter(country__name__isnull = False).order_by('-release_date')
         
-        movies = Movie.objects.filter(country__name="한국").order_by('-release_date')
+        if country_name == "한국":
+            movies = Movie.objects.filter(country__name="한국").order_by('-release_date')
         
         if country_name == "외국":
             movies = Movie.objects.exclude(country__name="한국").filter(country__name__isnull = False).distinct().order_by('-release_date')
