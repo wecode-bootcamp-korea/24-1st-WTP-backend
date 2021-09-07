@@ -1,5 +1,4 @@
 import json
-from movies.utils import token_check
 
 from django.db.models import Q
 from django.views import View
@@ -7,6 +6,7 @@ from django.http import JsonResponse
 
 from movies.models import Movie, Rating
 from users.models import User
+from users.utils import login_decorator
 
 
 class MovieView(View): 
@@ -47,13 +47,13 @@ class MovieView(View):
         return JsonResponse({"MOVIE_LIST" : movie_list}, status=200)
 
 class CommentView(View):
-    @token_check
+    @login_decorator
     def post(self, request, movie_id):
         try:    
             data = json.loads(request.body)
             user = User.objects.filter(id=data["user_id"])
             movie = Movie.objects.filter(id=movie_id)
-
+            # 코멘트만 업데이트 하는 것으로 변경
             if not movie.exists():
                 return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
             
@@ -66,7 +66,8 @@ class CommentView(View):
             Rating.objects.create(
                 user_id    = User.objects.get(id=data["user_id"]).id,
                 rate       = data["rate"],
-                comment    = data["comment"]
+                comment    = data["comment"],
+                movie_id = movie_id
             )
 
             return JsonResponse({"MESSAGE" : "CREATE"}, status=200)
@@ -78,6 +79,8 @@ class CommentView(View):
 
     def get(self, request, movie_id):
         user   = request.GET.get('user')
+
+        # 영화의 전체 코멘트만 가져오는 것으로 변경
 
         if User.objects.filter(id=user).exists and not Movie.objects.filter(id=movie_id).exists():
             return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
