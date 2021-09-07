@@ -24,7 +24,7 @@ class SignUpView(View):
             if not re.match('^[a-zA-Z\d+-.]+@[a-zA-Z\d+-.]+\.[a-zA-Z]{2,3}$', email):
                 return JsonResponse({'MESSAGE' : 'Wrong E-mail Form'}, status = 400)
 
-            if not re.match('^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*-_])[A-Za-z\d!@#$%^&*-_]{10,}$',password):
+            if not re.match('^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{10,}$',password):
                 return JsonResponse({'MESSAGE' : 'Wrong Password Form'}, status = 400)
 
             if User.objects.filter(email = email).exists():
