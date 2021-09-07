@@ -88,7 +88,7 @@ class RateView(View):
 
 
 # 상세페이지2: 특정 영화의 비슷한 영화 불러오는 API
-class RelatedMovie(View):
+class GenreMovie(View):
     def get(self, request):
             
         OFFSET = 0
@@ -112,6 +112,7 @@ class RelatedMovie(View):
                 
                 for mv in mv_list:
                     related.append({
+                        "movie_id": mv.movie.id,
                         "title": mv.movie.title,
                         "avg": mv.movie.average_rating,
                         "poster": mv.movie.poster_image,    
