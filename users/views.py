@@ -66,7 +66,7 @@ class Login(View):
 
             return JsonResponse({
                 "message": "accepted",
-                "token": token,
+                "auth_token": token,
             }, status=200)
 
         except KeyError:

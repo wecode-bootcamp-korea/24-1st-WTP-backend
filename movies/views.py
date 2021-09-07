@@ -69,7 +69,6 @@ class RateView(View):
                     rate     = rate,
                 )
 
-            # 별점 평균
             mv_rate = Rating.objects.filter(movie_id=movie_id)
             avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
             
@@ -88,9 +87,8 @@ class RateView(View):
 
 
 # 상세페이지2: 특정 영화의 비슷한 영화 불러오는 API
-class GenreMovie(View):
-    def get(self, request):
-            
+class GenreMovieView(View):
+    def get(self, request):  
         OFFSET = 0
         LIMIT = 16
 
@@ -110,15 +108,13 @@ class GenreMovie(View):
             for i in genres:
                 mv_list = MovieGenre.objects.filter(genre_id=i.genre_id).exclude(movie_id=movie_id)
                 
-                for mv in mv_list:
-                    related.append({
-                        "movie_id": mv.movie.id,
-                        "title": mv.movie.title,
-                        "avg": mv.movie.average_rating,
-                        "poster": mv.movie.poster_image,    
-                    })
+                related = [{
+                    "movie_id": mv.movie.id,
+                    "title": mv.movie.title,
+                    "avg": mv.movie.average_rating,
+                    "poster": mv.movie.poster_image,    
+                }for mv in mv_list]
 
-            # 중복 값 제거
             related_movies = list({rel['title']: rel for rel in related}.values())
             
             return JsonResponse({
