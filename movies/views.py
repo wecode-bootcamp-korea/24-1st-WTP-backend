@@ -4,8 +4,7 @@ from django.db.models import Q
 from django.views import View
 from django.http import JsonResponse
 
-from movies.models import Movie, Rating
-from users.models import User
+from movies.models import Movie
 
 
 class MovieView(View): 
