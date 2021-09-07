@@ -19,12 +19,6 @@ class MovieDetailView(View):
 
             image_url = [image.image_url for image in movie.image_set.all()]
 
-            # # 2
-            # image_url = []
-            # images = Image.objects.filter(movie_id = movie_id)
-            # for image in images:
-            #     image_url.append(image.image_url)
-
             participants = []
             movie_participants = MovieParticipant.objects.filter(movie = movie_id)
             for movie_participant in movie_participants:
