@@ -353,7 +353,7 @@ zsdoc/data
 # MichaelAquilina/zsh-autoswitch-virtualenv plugin's files
 # (for Zsh plugins using Python)
 
-manangement
+movies/manangement/command/data_loader.py
 
 # Zunit tests' output
 /tests/_output/*
@@ -402,3 +402,4 @@ csvsheets
 
 
 
+movies/management/commands/data_loader.py

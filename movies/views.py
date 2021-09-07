@@ -51,21 +51,14 @@ class MovieView(View):
 
 
 # 영화에 별점 매긴 사람들, 펼점 평균
-class RateUpdate(View):
+class RateView(View):
     @login_decorator
     def post(self, request, movie_id):
         try:
             data = json.loads(request.body)
             
             rate = data['rate']
-            
-            mv_rate = Rating.objects.filter(movie_id=movie_id)
-            
-            # 별점 평균
-            avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
-            
-            Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
-
+        
             if Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).exists():
                 Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).update(rate=rate)
             
@@ -76,7 +69,13 @@ class RateUpdate(View):
                     rate     = rate,
                 )
 
-            return JsonResponse({"movie": "SUCCESS"}, status=200)
+            # 별점 평균
+            mv_rate = Rating.objects.filter(movie_id=movie_id)
+            avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
+            
+            Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
+
+            return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except KeyError:
             return JsonResponse({"message": "INVALID FORMAT"}, status=400)
