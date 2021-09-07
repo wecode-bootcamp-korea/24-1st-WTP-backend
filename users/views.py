@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-import json, bcrypt
-import jwt
-
-from django.http      import JsonResponse
-from django.views     import View
-
-from users.models     import User
-from my_settings      import SECRET_KEY, ALGORITHM
-
-
-class Login(View):
-
-    def post(self, request):
-        
-=======
 import json
 import re
 import bcrypt, jwt
@@ -25,6 +9,7 @@ from django.http            import JsonResponse
 
 from users.models           import User
 from my_settings      import SECRET_KEY, ALGORITHM
+
 
 class SignUpView(View):
     def post(self, request):
@@ -65,7 +50,6 @@ class SignUpView(View):
 
 class Login(View):
     def post(self, request):
->>>>>>> main
         try:
             data = json.loads(request.body)
 
@@ -82,20 +66,14 @@ class Login(View):
 
             return JsonResponse({
                 "message": "accepted",
-<<<<<<< HEAD
                 "token": token,
-=======
-                "auth_token": token,
->>>>>>> main
             }, status=200)
 
         except KeyError:
             return JsonResponse({"message": "KEY ERROR"}, status=400)
 
-<<<<<<< HEAD
         except ValueError:
             return JsonResponse({"message": "VALUE ERROR"}, status=400)
-=======
+        
         except JSONDecodeError:
             return JsonResponse({"message": "INVALID DATA FORMAT"}, status=400)
->>>>>>> main
