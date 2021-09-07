@@ -360,11 +360,3 @@ zsdoc/data
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,zsh,visualstudiocode,python,pycharm,vim
 my_settings.py
 uploader.py
-countries.csv
-genres.csv
-grades.csv
-movies_countries.csv
-movies_genres.csv
-moviess.csv
-ratings.csv
-userss.csv

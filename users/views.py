@@ -12,7 +12,7 @@ from users.models           import User
 class SignUpView(View):
     def post(self, request):
         try:
-            data             = json.loads(request.body)
+            data     = json.loads(request.body)
             name     = data['name']
             email    = data['email']
             password = data['password']

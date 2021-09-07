@@ -1,4 +1,5 @@
 import json
+from movies.utils import token_check
 
 from django.db.models import Q
 from django.views import View
@@ -45,8 +46,8 @@ class MovieView(View):
 
         return JsonResponse({"MOVIE_LIST" : movie_list}, status=200)
 
-
 class CommentView(View):
+    @token_check
     def post(self, request, movie_id):
         try:    
             data = json.loads(request.body)
@@ -64,7 +65,6 @@ class CommentView(View):
 
             Rating.objects.create(
                 user_id    = User.objects.get(id=data["user_id"]).id,
-                movie_id   = Movie.objects.get(id=movie_id).id,
                 rate       = data["rate"],
                 comment    = data["comment"]
             )
@@ -79,9 +79,6 @@ class CommentView(View):
     def get(self, request, movie_id):
         user   = request.GET.get('user')
 
-        if not movie_id:
-            return JsonResponse({"MESSAGE" : "PLEASE_ENTER_MOVIE_ID"}, status=404)
-        
         if User.objects.filter(id=user).exists and not Movie.objects.filter(id=movie_id).exists():
             return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
         
