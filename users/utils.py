@@ -10,9 +10,10 @@ def login_decorator(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             access_token = request.headers.get("Authorization", None)
-            user = jwt.decode(access_token, SECRET_KEY, algorithms=ALGORITHM)
+            user         = jwt.decode(access_token, SECRET_KEY, algorithms=ALGORITHM)
+            print(user["id"])
             request.user = User.objects.get(id = user['id'])
-
+            
         except jwt.exceptions.DecodeError:                                   
             return JsonResponse({'message' : '일치하지 않는 토큰입니다.' }, status=400)
 

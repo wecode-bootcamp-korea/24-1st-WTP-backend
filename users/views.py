@@ -28,7 +28,7 @@ class Login(View):
 
             return JsonResponse({
                 "message": "accepted",
-                "auth_token": token,
+                "token": token,
             }, status=200)
 
         except KeyError:

@@ -1,4 +1,6 @@
 import json
+from json.decoder import JSONDecodeError
+from django.core.exceptions import ValidationError
 
 from django.http.response import JsonResponse
 from movies.models        import *
@@ -7,7 +9,7 @@ from users.views          import Login
 from decimal              import *
 
 from django.views         import View
-from django.db.models     import F, Sum, Count, Avg 
+from django.db.models     import Avg 
 
 from users.utils          import login_decorator
 
@@ -15,37 +17,40 @@ from users.utils          import login_decorator
 # 영화에 별점 매긴 사람들, 펼점 평균
 class RateUpdate(View):
     @login_decorator
-    def post(self, movie_id, request):
+    def post(self, request, movie_id):
         try:
             data = json.loads(request.body)
             
             rate = data['rate']
-            
-            # 별점 업데이트
-            Rating.objects.create(user_id=request.user.id, movie_id=movie_id, rate=rate)
             
             mv_rate = Rating.objects.filter(movie_id=movie_id)
             
             # 별점 평균
             avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
             
-            Movie.objects.filter(id=movie_id).update(average_rate=avg_rate)
+            Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
 
             if Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).exists():
-                Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).update(rate=data['rate'])
+                Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).update(rate=rate)
             
             else:
                 Rating.objects.create(
                     user_id  = request.user.id,
                     movie_id = movie_id,
-                    rate     = data['rate'],
+                    rate     = rate,
                 )
 
             return JsonResponse({"movie": "SUCCESS"}, status=200)
 
         except KeyError:
             return JsonResponse({"message": "INVALID FORMAT"}, status=400)
-    
+        
+        except JSONDecodeError:
+            return JsonResponse({"message": "NO DATA"}, status=400)
+        
+        except ValidationError:
+            return JsonResponse({"message": "TYPE DOESNT MATCH"}, status=400)
+
     # movie = {
             #     "name"              : movie.name, 
             #     "user_rate"         : rate,
@@ -74,7 +79,7 @@ class RateUpdate(View):
     #     total_rated = rate.count()
         
     #     # 영화의 이미지들 가져오기
-    #     mv_images = Movie.objects.filter(id=movie_id).prefetch_related('image_set')[0].image_set.values('image_url')
+        # mv_images = Movie.objects.filter(id=movie_id).prefetch_related('image_set')[0].image_set.values('image_url')
         
     #     image_list = []
         
@@ -102,14 +107,22 @@ class RateUpdate(View):
 
 # 상세페이지2: 특정 영화의 비슷한 영화 불러오는 API
 class RelatedMovie(View):
-    def get(self, request, movie_id):
-        
+    def get(self, request):
+            
         OFFSET = 0
         LIMIT = 16
 
         try:
+            movie_id = request.GET.get('id', None)
+            
+            if not movie_id:
+                return JsonResponse({"message": "NO QUERY STRING"}, status=201)  
+            
+            if not MovieGenre.objects.filter(movie_id=movie_id).exists():
+                return JsonResponse({"message": "QUERY DOES NOT MATCH"}, status=201)
+
             genres = MovieGenre.objects.filter(movie_id=movie_id)
-        
+
             related = []
 
             for i in genres:
