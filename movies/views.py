@@ -1,10 +1,10 @@
 import json
 
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.views import View
 from django.http import JsonResponse
 
-from movies.models import Movie
+from movies.models import Movie, MovieParticipant, Rating
 
 
 class MovieView(View): 
@@ -33,7 +33,7 @@ class MovieView(View):
         
         if rating:
             movies =  Movie.objects.order_by('-average_rating')
-  
+
         movie_list = [{
             "country_name"   : [country.name for country in movie.country.all()], 
             "movie_name"     : movie.title,
@@ -52,46 +52,27 @@ class MovieDetailView(View):
 
             movie = Movie.objects.get(id = movie_id)
 
-            title          = movie.title
-            release_date   = movie.release_date
-            poster_image   = movie.poster_image
-            trailer        = movie.trailer
-            description    = movie.description
-
-            image_url = [image.image_url for image in movie.image_set.all()]
-
-            participants = []
-            movie_participants = MovieParticipant.objects.filter(movie = movie_id)
-            for movie_participant in movie_participants:
-                participants.append(
-                    {
-                        'name' : movie_participant.participant.name,
-                        'role' : movie_participant.role,
-                        'image' : movie_participant.participant.image_url
-                    }
-                )
-
-            rating_users  = [rating.user for rating in movie.rating_set.all()]
-            rates         = [rating.rate for rating in movie.rating_set.all()]
-
-            average_rating = sum(rates)/len(rating_users)
-
             movie_details = {
-                'title'          : title,
-                'release_date'   : release_date,
+                'title'          : movie.title,
+                'release_date'   : movie.release_date,
                 'genre'          : [genre.name for genre in movie.genre.all()],
                 'country'        : [country.name for country in movie.country.all()],
-                'poster_image'   : poster_image,
-                'trailer'        : trailer,
-                'image_url'      : image_url,
-                'description'    : description,
-                'participants'   : participants,
-                'average_rating' : average_rating,
-                'rating_users'   : len(rating_users),
+                'poster_image'   : movie.poster_image,
+                'trailer'        : movie.trailer,
+                'image_url'      : [image.image_url for image in movie.image_set.all()],
+                'participants'   : [
+                    {
+                        'name'  : participants.participant.name,
+                        'role'  : participants.role,
+                        'image' : participants.participant.image_url 
+                    } for participants in MovieParticipant.objects.filter(movie = movie_id)
+                ],
+                'description'    : movie.description,
+                'rating_users'   : movie.rating_set.count(),
+                'average_rating' : round(Rating.objects.filter(movie_id = movie).aggregate(Avg('rate'))['rate__avg'], 1)
             }
 
             return JsonResponse({'movie_info': movie_details}, status = 200)
 
         except KeyError:
             JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
-=======
