@@ -53,7 +53,7 @@ class CommentView(View):
             data = json.loads(request.body)
             user = User.objects.filter(id=data["user_id"])
             movie = Movie.objects.filter(id=movie_id)
-            # 코멘트만 업데이트 하는 것으로 변경
+            
             if not movie.exists():
                 return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
             
@@ -63,9 +63,9 @@ class CommentView(View):
             if not Rating.objects.filter(user_id=data["user_id"]).exists():
                 return JsonResponse({"MESSAGE" : "ENTER_RATING_FIRST"}, status=404)
 
-            Rating.objects.create(
-                user_id    = User.objects.get(id=data["user_id"]).id,
-                rate       = data["rate"],
+            Rating.objects.update(
+                user_id    = data["user_id"],
+                rate       = Rating.objects.get(user_id=data["user_id"]).rate,
                 comment    = data["comment"],
                 movie_id = movie_id
             )
@@ -78,23 +78,11 @@ class CommentView(View):
 
 
     def get(self, request, movie_id):
-        user   = request.GET.get('user')
-
-        # 영화의 전체 코멘트만 가져오는 것으로 변경
-
-        if User.objects.filter(id=user).exists and not Movie.objects.filter(id=movie_id).exists():
-            return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
-        
-        q =Q()
-        q.add(Q(movie_id=movie_id), q.AND)
-        
-        if user:
-            q.add(Q(user_id=user), q.AND)
 
         comment_list = [{
-            "user_name"   : comment.user.name, 
-            "comment"     : comment.comment, 
-            "user_rating" : comment.rate 
-        }for comment in Rating.objects.filter(q)]
+            "user_name"   : rating.user.name, 
+            "comment"     : rating.comment, 
+            "user_rating" : rating.rate 
+        }for rating in Rating.objects.filter(movie_id=movie_id)]
 
         return JsonResponse({"MESSAGE" :comment_list}, status=200)
