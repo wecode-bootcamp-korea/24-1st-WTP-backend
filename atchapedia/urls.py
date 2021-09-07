@@ -5,3 +5,4 @@ urlpatterns = [
     path('details', include('movies.urls')),
     path("movies", include("movies.urls")),
 ]    
+
