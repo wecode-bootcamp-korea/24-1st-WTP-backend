@@ -352,7 +352,7 @@ zsdoc/data
 
 # MichaelAquilina/zsh-autoswitch-virtualenv plugin's files
 # (for Zsh plugins using Python)
-
+manangement
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep
@@ -361,4 +361,43 @@ zsdoc/data
 
 my_settings.py
 csvsheets
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

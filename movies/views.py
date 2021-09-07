@@ -1,17 +1,63 @@
 import json
-from json.decoder import JSONDecodeError
+from json.decoder           import JSONDecodeError
+from decimal                import *
+from django.http.response   import JsonResponse
+
+from django.views           import View
+from django.db.models       import Avg 
 from django.core.exceptions import ValidationError
 
-from django.http.response import JsonResponse
-from movies.models        import *
-from typing               import KeysView
-from users.views          import Login
-from decimal              import *
+from users.utils            import login_decorator
+from movies.models          import *
 
-from django.views         import View
-from django.db.models     import Avg 
 
-from users.utils          import login_decorator
+class MovieDetailView(View):
+    def get(self, request, movie_id):
+        
+        if not Movie.objects.filter(id = movie_id).exists():
+            return JsonResponse({'MESSAGE':'Movie Not Exists'}, status = 404)
+​
+        movie = Movie.objects.get(id = movie_id)
+​
+        title          = movie.title
+        release_date   = movie.release_date
+        poster_image   = movie.poster_image
+        trailer        = movie.trailer
+        description    = movie.description
+​
+        image_url = [image.image_url for image in movie.image_set.all()]
+        
+        participants = []
+        movie_participants = MovieParticipant.objects.filter(movie = movie_id)
+        for movie_participant in movie_participants:
+            participants.append(
+                {
+                    'name' : movie_participant.participant.name,
+                    'role' : movie_participant.role,
+                    'image' : movie_participant.participant.image_url
+                }
+            )
+​
+        rating_users  = [rating.user for rating in movie.rating_set.all()]
+        rates         = [rating.rate for rating in movie.rating_set.all()]
+​
+        average_rating = sum(rates)/len(rating_users)
+​
+        movie_details = {
+            'title'          : title,
+            'release_date'   : release_date,
+            'genre'          : [genre.name for genre in movie.genre.all()],
+            'country'        : [country.name for country in movie.country.all()],
+            'poster_image'   : poster_image,
+            'trailer'        : trailer,
+            'image_url'      : image_url,
+            'description'    : description,
+            'participants'   : participants,
+            'average_rating' : average_rating,
+            'rating_users'   : len(rating_users),
+        }
+​
+        return JsonResponse({'movie_info': movie_details}, status = 200)
 
 
 # 영화에 별점 매긴 사람들, 펼점 평균
@@ -51,59 +97,6 @@ class RateUpdate(View):
         except ValidationError:
             return JsonResponse({"message": "TYPE DOESNT MATCH"}, status=400)
 
-    # movie = {
-            #     "name"              : movie.name, 
-            #     "user_rate"         : rate,
-            #     "avg_rate"          : new_rate,
-            #     "total_rated_people": total_rate_point + 1,
-            # }
-
-
-    # def get(self, request, movie_id):
-    #     '''
-    #     반환할 필드: 특정 영화, 평균 별점 및 참여자 수, 이미지들, 비슷한 장르 영화들(이름, 이미지) 
-        
-    #     '''
-        
-    #     movie = Movie.objects.get(id=movie_id)
-
-    #     # movie & grade join
-    #     get_related = Movie.objects.select_related('grade').get(id=movie_id)
-                
-    #     rate = Rating.objects.filter(movie_id=1)
-        
-    #     # 별점 평균
-    #     avg_rate = rate.aggregate(avg_rate=Avg('rate'))
-        
-    #     # 별점 부여한 인원
-    #     total_rated = rate.count()
-        
-    #     # 영화의 이미지들 가져오기
-        # mv_images = Movie.objects.filter(id=movie_id).prefetch_related('image_set')[0].image_set.values('image_url')
-        
-    #     image_list = []
-        
-    #     for image in mv_images:
-    #         image_list.append(image)
-        
-        
-    #     items = {
-    #         "movie_title"   : get_related.title,
-    #         "released"      : movie.release_date,
-    #         "description"   : movie.description,
-    #         "running_time"  : movie.running_time,
-    #         "average_rating": avg_rate['avg_rate'],
-    #         "grade"         : get_related.grade.grade,
-    #         "total_rated"   : total_rated,
-    #         "poster"        : movie.poster_image,
-    #         "images"        : image_list,
-    #     }
-        
-
-    #     return JsonResponse({
-    #         "message": "Success",
-    #         "items": items
-    #     }, status=200)
 
 # 상세페이지2: 특정 영화의 비슷한 영화 불러오는 API
 class RelatedMovie(View):
