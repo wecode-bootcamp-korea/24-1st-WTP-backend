@@ -39,6 +39,7 @@ class MovieView(View):
         movie_list = [{
             "country_name"   : [country.name for country in movie.country.all()], 
             "movie_name"     : movie.title,
+            "movie_id"       : movie.id,
             "released_date"  : movie.release_date,
             "average_rating" : movie.average_rating,
             "poster_image"   : movie.poster_image
@@ -85,25 +86,15 @@ class CommentView(View):
     @login_decorator
     def post(self, request, movie_id):
         try:    
-            data = json.loads(request.body)
-            user = User.objects.filter(id=data["user_id"])
-            movie = Movie.objects.filter(id=movie_id)
-            
-            if not movie.exists():
-                return JsonResponse({"MESSAGE" : "MOVIE_DOES_NOT_EXIST"}, status=404)
-            
-            if not user.exists():
-                return JsonResponse({"MESSAGE" : "USER_DOES_NOT_EXIST"}, status=404)
-            
-            if not Rating.objects.filter(user_id=data["user_id"]).exists():
+            data    = json.loads(request.body)
+            user_id = request.user.id
+            rating = Rating.objects.get(user_id=user_id,movie_id=movie_id)
+
+            if not rating:
                 return JsonResponse({"MESSAGE" : "ENTER_RATING_FIRST"}, status=404)
 
-            Rating.objects.update(
-                user_id    = data["user_id"],
-                rate       = Rating.objects.get(user_id=data["user_id"]).rate,
-                comment    = data["comment"],
-                movie_id = movie_id
-            )
+            rating.comment = (data["comment"])
+            rating.save()
 
             return JsonResponse({"MESSAGE" : "CREATE"}, status=200)
         except ValueError:
