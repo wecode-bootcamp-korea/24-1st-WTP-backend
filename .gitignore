@@ -354,7 +354,7 @@ zsdoc/data
 # (for Zsh plugins using Python)
 
 movies/manangement/commands/data_loader.py
-
+movies/utils.py
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep

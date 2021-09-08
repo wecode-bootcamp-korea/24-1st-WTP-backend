@@ -117,16 +117,6 @@ class GenreMovieView(View):
                 "poster": mv.movie.poster_image,    
             }for mv in movie]
             
-            # for i in genres:
-            #     mv_list = MovieGenre.objects.filter(genre_id=i.genre_id).exclude(movie_id=movie_id)
-                
-            #     related = [{
-            #         "movie_id": mv.movie.id,
-            #         "title": mv.movie.title,
-            #         "avg": mv.movie.average_rating,
-            #         "poster": mv.movie.poster_image,    
-            #     }for mv in mv_list]
-
             related_movies = list({rel['title']: rel for rel in related}.values())
             
             return JsonResponse({
