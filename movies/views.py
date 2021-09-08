@@ -139,7 +139,6 @@ class GenreMovieView(View):
 
 
 class MovieDetailView(View):
-    @query_debugger
     def get(self, request, movie_id):
         try:
             if not Movie.objects.filter(id = movie_id).exists():
