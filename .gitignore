@@ -352,10 +352,13 @@ zsdoc/data
 
 # MichaelAquilina/zsh-autoswitch-virtualenv plugin's files
 # (for Zsh plugins using Python)
-csvsheets
+
+movies/manangement/commands/data_loader.py
+movies/utils.py
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,zsh,visualstudiocode,python,pycharm,vim
 my_settings.py
+csvsheets

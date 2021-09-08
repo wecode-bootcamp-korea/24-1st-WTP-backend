@@ -1,12 +1,15 @@
 import json
+from json.decoder           import JSONDecodeError
+from decimal                import *
 
-from django.db.models import Q, Avg
-from django.views import View
-from django.http import JsonResponse
+from django.http            import JsonResponse
+from django.core.exceptions import ValidationError
+from django.db.models       import Q, Avg
+from django.views           import View
 
-from users.models import User
-from users.utils import login_decorator
-from movies.models import Movie, MovieParticipant, Rating
+from movies.models          import Movie, MovieParticipant
+from users.utils            import login_decorator
+from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
 
 
 class MovieView(View): 
@@ -48,6 +51,81 @@ class MovieView(View):
         return JsonResponse({"MOVIE_LIST" : movie_list}, status=200)
 
 
+class RateView(View):
+    @login_decorator
+    def post(self, request, movie_id):
+        try:
+            data = json.loads(request.body)
+            
+            rate = data['rate']
+
+            Rating.objects.update_or_create(
+                user_id  = request.user.id,
+                movie_id = movie_id,
+                defaults={'rate': rate}
+            )
+
+            mv_rate = Rating.objects.filter(movie_id=movie_id)
+            avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
+            
+            Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
+
+            return JsonResponse({
+                "message": "SUCCESS"
+            }, status=200)
+
+        except KeyError:
+            return JsonResponse({"message": "INVALID FORMAT"}, status=400)
+        
+        except JSONDecodeError:
+            return JsonResponse({"message": "NO DATA"}, status=400)
+        
+        except ValidationError:
+            return JsonResponse({"message": "TYPE DOESNT MATCH"}, status=400)
+
+
+class GenreMovieView(View):
+    def get(self, request):  
+        OFFSET = 0
+        LIMIT = 16
+        q = Q()
+
+        try:
+            movie_id = request.GET.get('id', None)
+            
+            if not movie_id:
+                return JsonResponse({"message": "NO QUERY STRING"}, status=404)  
+            
+            if not MovieGenre.objects.filter(movie_id=movie_id).exists():
+                return JsonResponse({"message": "QUERY DOES NOT MATCH"}, status=404)
+
+            genres = MovieGenre.objects.filter(movie_id=movie_id)
+
+            related = []
+
+            for genre in genres:
+                q |= Q(genre__id = genre.genre_id)
+            
+            movie = MovieGenre.objects.select_related('movie').filter(q).exclude(movie_id=movie_id)
+            
+            related = [{
+                "movie_id": mv.movie.id,
+                "title": mv.movie.title,
+                "avg": mv.movie.average_rating,
+                "poster": mv.movie.poster_image,    
+            }for mv in movie]
+            
+            related_movies = list({rel['title']: rel for rel in related}.values())
+            
+            return JsonResponse({
+                "message": "SUCCESS",
+                "related_movies": related_movies[OFFSET:LIMIT],
+            },status=200)
+        
+        except KeyError:
+            return JsonResponse({"message": "INVALID DATA FORMAT"}, status=400)
+
+
 class MovieDetailView(View):
     def get(self, request, movie_id):
         try:
@@ -80,7 +158,6 @@ class MovieDetailView(View):
 
         except KeyError:
             JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
-
 
 class CommentView(View):
     @login_decorator

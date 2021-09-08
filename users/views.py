@@ -12,6 +12,7 @@ from django.http            import JsonResponse
 from users.models           import User
 from my_settings      import SECRET_KEY, ALGORITHM
 
+
 class SignUpView(View):
     def post(self, request):
         try:
@@ -74,5 +75,8 @@ class Login(View):
         except KeyError:
             return JsonResponse({"message": "KEY ERROR"}, status=400)
 
+        except ValueError:
+            return JsonResponse({"message": "VALUE ERROR"}, status=400)
+        
         except JSONDecodeError:
             return JsonResponse({"message": "INVALID DATA FORMAT"}, status=400)
