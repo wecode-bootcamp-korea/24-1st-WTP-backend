@@ -96,10 +96,10 @@ class GenreMovieView(View):
             movie_id = request.GET.get('id', None)
             
             if not movie_id:
-                return JsonResponse({"message": "NO QUERY STRING"}, status=201)  
+                return JsonResponse({"message": "NO QUERY STRING"}, status=404)  
             
             if not MovieGenre.objects.filter(movie_id=movie_id).exists():
-                return JsonResponse({"message": "QUERY DOES NOT MATCH"}, status=201)
+                return JsonResponse({"message": "QUERY DOES NOT MATCH"}, status=404)
 
             genres = MovieGenre.objects.filter(movie_id=movie_id)
 
