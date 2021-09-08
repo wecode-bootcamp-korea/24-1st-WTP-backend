@@ -59,22 +59,22 @@ class RateView(View):
             
             rate = data['rate']
         
-            if Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).exists():
-                Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).update(rate=rate)
-            
-            else:
-                Rating.objects.create(
-                    user_id  = request.user.id,
-                    movie_id = movie_id,
-                    rate     = rate,
-                )
+            Rating.objects.update_or_create(
+                user_id  = request.user.id,
+                movie_id = movie_id,
+                comment = '댓글을 작성해주세요!',
+                defaults={'rate': rate}
+            )
 
             mv_rate = Rating.objects.filter(movie_id=movie_id)
             avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
             
             Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
 
-            return JsonResponse({"message": "SUCCESS"}, status=200)
+            return JsonResponse({
+                "message": "SUCCESS",
+                "my_rate": rate,
+            }, status=200)
 
         except KeyError:
             return JsonResponse({"message": "INVALID FORMAT"}, status=400)
