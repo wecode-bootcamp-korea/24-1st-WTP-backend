@@ -58,7 +58,7 @@ class RateView(View):
             data = json.loads(request.body)
             
             rate = data['rate']
-        
+            
             Rating.objects.update_or_create(
                 user_id  = request.user.id,
                 movie_id = movie_id,
