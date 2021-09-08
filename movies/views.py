@@ -71,8 +71,7 @@ class RateView(View):
             Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
 
             return JsonResponse({
-                "message": "SUCCESS",
-                "my_rate": rate,
+                "message": "SUCCESS"
             }, status=200)
 
         except KeyError:
