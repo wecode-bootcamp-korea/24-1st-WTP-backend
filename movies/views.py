@@ -58,11 +58,10 @@ class RateView(View):
             data = json.loads(request.body)
             
             rate = data['rate']
-            
+
             Rating.objects.update_or_create(
                 user_id  = request.user.id,
                 movie_id = movie_id,
-                comment = '댓글을 작성해주세요!',
                 defaults={'rate': rate}
             )
 
