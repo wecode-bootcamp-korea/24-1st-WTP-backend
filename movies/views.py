@@ -107,7 +107,7 @@ class CommentView(View):
             "user_name"   : rating.user.name, 
             "comment"     : rating.comment, 
             "user_rating" : rating.rate 
-        }for rating in Rating.objects.filter(movie_id=movie_id)]
+        }for rating in Rating.objects.filter(movie_id=movie_id).order_by('-id')]
 
         return JsonResponse({"MESSAGE" :comment_list}, status=200)
         
