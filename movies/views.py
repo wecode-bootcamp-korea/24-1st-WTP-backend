@@ -14,7 +14,6 @@ from movies.utils           import query_debugger
 
 
 class MovieView(View): 
-    @query_debugger
     def get(self,request): 
         country_name = request.GET.get("country")
         genre1       = request.GET.get("genre1")
@@ -54,7 +53,6 @@ class MovieView(View):
 
 class RateView(View):
     @login_decorator
-    @query_debugger
     def post(self, request, movie_id):
         try:
             data = json.loads(request.body)
@@ -89,7 +87,6 @@ class RateView(View):
 
 
 class GenreMovieView(View):
-    @query_debugger
     def get(self, request):  
         OFFSET = 0
         LIMIT = 16
