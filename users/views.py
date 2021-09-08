@@ -1,5 +1,7 @@
 import json
+from json import decoder
 import re
+from users.utils import login_decorator
 import bcrypt, jwt
 from json.decoder import JSONDecodeError
 
@@ -14,7 +16,7 @@ from my_settings      import SECRET_KEY, ALGORITHM
 class SignUpView(View):
     def post(self, request):
         try:
-            data             = json.loads(request.body)
+            data     = json.loads(request.body)
             name     = data['name']
             email    = data['email']
             password = data['password']
@@ -63,10 +65,11 @@ class Login(View):
                 return JsonResponse({"message": "비밀번호가 일치하지 않습니다!"}, status=401)
                 
             token = jwt.encode({"id": current_user.id}, SECRET_KEY, algorithm=ALGORITHM)
-
+            
             return JsonResponse({
-                "message": "accepted",
+                "message"   : "accepted",
                 "auth_token": token,
+                "user_name" : current_user.name
             }, status=200)
 
         except KeyError:

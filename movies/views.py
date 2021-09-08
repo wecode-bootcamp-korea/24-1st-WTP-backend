@@ -6,11 +6,10 @@ from django.http            import JsonResponse
 from django.core.exceptions import ValidationError
 from django.db.models       import Q, Avg
 from django.views           import View
-from django.http            import JsonResponse
 
-from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
+from movies.models          import Movie, MovieParticipant, 
 from users.utils            import login_decorator
-from movies.utils           import query_debugger
+from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
 
 
 class MovieView(View): 
@@ -43,6 +42,7 @@ class MovieView(View):
         movie_list = [{
             "country_name"   : [country.name for country in movie.country.all()], 
             "movie_name"     : movie.title,
+            "movie_id"       : movie.id,
             "released_date"  : movie.release_date,
             "average_rating" : movie.average_rating,
             "poster_image"   : movie.poster_image
@@ -160,3 +160,33 @@ class MovieDetailView(View):
 
         except KeyError:
             JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
+class CommentView(View):
+    @login_decorator
+    def post(self, request, movie_id):
+        try:    
+            data    = json.loads(request.body)
+            user_id = request.user.id
+            rating = Rating.objects.get(user_id=user_id,movie_id=movie_id)
+
+            if not rating:
+                return JsonResponse({"MESSAGE" : "ENTER_RATING_FIRST"}, status=404)
+
+            rating.comment = (data["comment"])
+            rating.save()
+
+            return JsonResponse({"MESSAGE" : "CREATE"}, status=200)
+        except ValueError:
+                return JsonResponse({"MESSAGE" : "VALUE_ERROR"}, status=404)
+        except KeyError:
+                return JsonResponse({"MESSAGE" : "KEY_ERROR"}, status=404)
+
+    def get(self, request, movie_id):
+        comment_list = [{
+            "user_name"   : rating.user.name, 
+            "comment"     : rating.comment, 
+            "user_rating" : rating.rate 
+        }for rating in Rating.objects.filter(movie_id=movie_id)]
+
+        return JsonResponse({"MESSAGE" :comment_list}, status=200)
+        
