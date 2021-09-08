@@ -10,8 +10,11 @@ from django.http            import JsonResponse
 
 from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
 from users.utils            import login_decorator
+from movies.utils           import query_debugger
+
 
 class MovieView(View): 
+    @query_debugger
     def get(self,request): 
         country_name = request.GET.get("country")
         genre1       = request.GET.get("genre1")
@@ -51,6 +54,7 @@ class MovieView(View):
 
 class RateView(View):
     @login_decorator
+    @query_debugger
     def post(self, request, movie_id):
         try:
             data = json.loads(request.body)
@@ -85,9 +89,11 @@ class RateView(View):
 
 
 class GenreMovieView(View):
+    @query_debugger
     def get(self, request):  
         OFFSET = 0
         LIMIT = 16
+        q = Q()
 
         try:
             movie_id = request.GET.get('id', None)
@@ -102,15 +108,27 @@ class GenreMovieView(View):
 
             related = []
 
-            for i in genres:
-                mv_list = MovieGenre.objects.filter(genre_id=i.genre_id).exclude(movie_id=movie_id)
+            for genre in genres:
+                q |= Q(genre__id = genre.genre_id)
+            
+            movie = MovieGenre.objects.select_related('movie').filter(q).exclude(movie_id=movie_id)
+            
+            related = [{
+                "movie_id": mv.movie.id,
+                "title": mv.movie.title,
+                "avg": mv.movie.average_rating,
+                "poster": mv.movie.poster_image,    
+            }for mv in movie]
+            
+            # for i in genres:
+            #     mv_list = MovieGenre.objects.filter(genre_id=i.genre_id).exclude(movie_id=movie_id)
                 
-                related = [{
-                    "movie_id": mv.movie.id,
-                    "title": mv.movie.title,
-                    "avg": mv.movie.average_rating,
-                    "poster": mv.movie.poster_image,    
-                }for mv in mv_list]
+            #     related = [{
+            #         "movie_id": mv.movie.id,
+            #         "title": mv.movie.title,
+            #         "avg": mv.movie.average_rating,
+            #         "poster": mv.movie.poster_image,    
+            #     }for mv in mv_list]
 
             related_movies = list({rel['title']: rel for rel in related}.values())
             
@@ -124,6 +142,7 @@ class GenreMovieView(View):
 
 
 class MovieDetailView(View):
+    @query_debugger
     def get(self, request, movie_id):
         try:
             if not Movie.objects.filter(id = movie_id).exists():
