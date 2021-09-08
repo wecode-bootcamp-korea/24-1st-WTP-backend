@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db.models       import Q, Avg
 from django.views           import View
 
-from movies.models          import Movie, MovieParticipant, 
+from movies.models          import Movie, MovieParticipant
 from users.utils            import login_decorator
 from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
 
