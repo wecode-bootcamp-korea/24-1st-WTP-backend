@@ -76,3 +76,39 @@ class MovieDetailView(View):
 
         except KeyError:
             JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
+# class SearchView(View):
+#     def get(self, request):
+
+#         # if not 'movie_title' in request.GET:
+#         #     return JsonResponse({'MESSAGE':'Wrong Key'}, status = 404)
+
+#         if not Movie.objects.filter(title = request.GET['movie_title']).exists():
+#             return JsonResponse({'MESSAGE':'No Movie Data!'}, status=404)
+
+#         movie_title = request.GET.get('movie_title', None)
+
+#         searched_movie = Movie.objects.get(title = movie_title)
+
+#         result = [{
+#             "movie_title"  : searched_movie.title,
+#             'movie_poster' : searched_movie.poster_image,
+#             'rating'       : searched_movie.average_rating,
+
+#         }]
+
+#         return JsonResponse({'MESSAGE':result}, status=200)
+
+class SearchView(View):
+    def get(self, request):
+
+        movie_title = request.GET.get('movie_title', None)
+
+        movies = Movie.objects.filter(title__icontains = movie_title)
+        results = [
+            {
+                'Movie' : [movie.title for movie in movies]
+            }
+        ]
+
+        return JsonResponse({'MESSAGE': results}, status=200)
