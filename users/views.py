@@ -5,11 +5,12 @@ from users.utils import login_decorator
 import bcrypt, jwt
 from json.decoder import JSONDecodeError
 
-from django.http.response   import JsonResponse
+from django.http.response   import HttpResponse, JsonResponse
 from django.views           import View
 from django.http            import JsonResponse
 
 from users.models           import User
+from movies.models           import Rating
 from my_settings      import SECRET_KEY, ALGORITHM
 
 
@@ -80,3 +81,23 @@ class Login(View):
         
         except JSONDecodeError:
             return JsonResponse({"message": "INVALID DATA FORMAT"}, status=400)
+
+
+class MyPageView(View):
+    @login_decorator
+    def get(self, request):
+        user_id = request.user.id
+
+        movies = Rating.objects.select_related('movie').filter(user_id=user_id)
+
+        if movies:
+            my_movies = [{
+                "title" : movie.movie.title,
+                "rating": movie.rate,
+                "poster": movie.movie.poster_image,
+            }for movie in movies]
+                
+            return JsonResponse({"movies": my_movies}, status=200)
+        
+        return HttpResponse('NO CONTENTS', status=204)
+        

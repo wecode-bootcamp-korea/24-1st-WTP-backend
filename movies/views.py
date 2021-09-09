@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.db.models       import Q, Avg
 from django.views           import View
 
-from users.models           import User
 from movies.models          import Movie, MovieParticipant
 from users.utils            import login_decorator
 from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
@@ -94,6 +93,7 @@ class RateView(View):
 
         return JsonResponse({"user_rate": rate}, status=200)
 
+
 class GenreMovieView(View):
     def get(self, request):  
         OFFSET = 0
@@ -168,6 +168,7 @@ class MovieDetailView(View):
 
         except KeyError:
             JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
 
 class CommentView(View):
     @login_decorator

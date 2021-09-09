@@ -8,5 +8,4 @@ urlpatterns = [
     path('/<int:movie_id>/user-rate', RateView.as_view()),
     path('/related-movies', GenreMovieView.as_view()),
     path("/<int:movie_id>/comments",CommentView.as_view()),
-    # path('/<int:movie_id>/user-rate', UserRateView.as_view())
 ]
