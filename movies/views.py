@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db.models       import Q, Avg
 from django.views           import View
 
+from users.models           import User
 from movies.models          import Movie, MovieParticipant
 from users.utils            import login_decorator
 from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
@@ -82,7 +83,16 @@ class RateView(View):
         
         except ValidationError:
             return JsonResponse({"message": "TYPE DOESNT MATCH"}, status=400)
+    
+    @login_decorator
+    def get(self, request, movie_id):
+        
+        if Rating.objects.filter(user_id=request.user.id, movie_id = movie_id).exists():
+                rate = Rating.objects.get(user_id=request.user.id, movie_id = movie_id).rate
+        else:
+            rate = 0.0
 
+        return JsonResponse({"user_rate": rate}, status=200)
 
 class GenreMovieView(View):
     def get(self, request):  
@@ -187,4 +197,47 @@ class CommentView(View):
         }for rating in Rating.objects.filter(movie_id=movie_id).order_by('-id')]
 
         return JsonResponse({"MESSAGE" :comment_list}, status=200)
-        
+
+
+# class UserRateView(View):
+#     @login_decorator
+#     def get(self, request, movie_id):
+#         try:
+#             if not Movie.objects.filter(id = movie_id).exists():
+#                 return JsonResponse({'MESSAGE':'Movie Not Exists'}, status = 404)
+            
+#             if not User.objects.filter(id = request.user.id).exists():
+#                 return JsonResponse({'MESSAGE':'User Not Exists'}, status = 404)
+
+#             movie = Movie.objects.get(id = movie_id)
+            
+#             if Rating.objects.filter(user_id=request.user.id, movie_id = movie_id).exists():
+#                 rate = Rating.objects.get(user_id=request.user.id, movie_id = movie_id).rate
+#             else:
+#                 rate = 0.0
+            
+#             movie_details = {
+#                 'title'          : movie.title,
+#                 'release_date'   : movie.release_date,
+#                 'genre'          : [genre.name for genre in movie.genre.all()],
+#                 'country'        : [country.name for country in movie.country.all()],
+#                 'poster_image'   : movie.poster_image,
+#                 'trailer'        : movie.trailer,
+#                 'image_url'      : [image.image_url for image in movie.image_set.all()],
+#                 'participants'   : [
+#                     {
+#                         'name'  : participants.participant.name,
+#                         'role'  : participants.role,
+#                         'image' : participants.participant.image_url 
+#                     } for participants in MovieParticipant.objects.filter(movie = movie_id)
+#                 ],
+#                 'description'    : movie.description,
+#                 'rating_users'   : movie.rating_set.count(),
+#                 'average_rating' : round(Rating.objects.filter(movie_id = movie).aggregate(Avg('rate'))['rate__avg'], 1),
+#                 'user_rate'      : rate
+#             }
+
+#             return JsonResponse({'movie_info': movie_details}, status = 200)
+
+#         except KeyError:
+#             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
