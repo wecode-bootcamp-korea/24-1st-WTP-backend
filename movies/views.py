@@ -3,25 +3,25 @@ from json.decoder           import JSONDecodeError
 from decimal                import *
 
 from django.http            import JsonResponse
-from django.core.exceptions import ValidationError
-from django.db.models       import Q, Avg
 from django.views           import View
+from django.db.models       import Q, Avg
+from django.core.exceptions import ValidationError
 
-from movies.models          import Movie, MovieParticipant
 from users.utils            import login_decorator
+from movies.models          import Movie, MovieParticipant
 from movies.models          import Movie, MovieParticipant, Rating, MovieGenre
 
 
 class MovieView(View): 
     def get(self,request): 
-        country_name = request.GET.get("country")
-        genre1       = request.GET.get("genre1")
-        genre2       = request.GET.get("genre2")
-        rating       = request.GET.get("rating","")
-        KOREAN_MOVIE = "한국"
+        country_name  = request.GET.get("country")
+        genre1        = request.GET.get("genre1")
+        genre2        = request.GET.get("genre2")
+        rating        = request.GET.get("rating","")
+        KOREAN_MOVIE  = "한국"
         FOREIGN_MOVIE = "외국"
-        LIMIT        = 25
-        OFFSET       = 0
+        LIMIT         = 25
+        OFFSET        = 0
 
         q = Q()
         
@@ -62,52 +62,52 @@ class RateView(View):
             Rating.objects.update_or_create(
                 user_id  = request.user.id,
                 movie_id = movie_id,
-                defaults={'rate': rate}
+                defaults = {'rate' : rate}
             )
 
-            mv_rate = Rating.objects.filter(movie_id=movie_id)
+            mv_rate  = Rating.objects.filter(movie_id=movie_id)
             avg_rate = mv_rate.aggregate(avg_rate=Avg('rate'))
             
             Movie.objects.filter(id=movie_id).update(average_rating=avg_rate['avg_rate'])
 
             return JsonResponse({
-                "message": "SUCCESS"
+                "message" : "SUCCESS"
             }, status=200)
 
         except KeyError:
-            return JsonResponse({"message": "INVALID FORMAT"}, status=400)
+            return JsonResponse({"message" : "INVALID FORMAT"}, status=400)
         
         except JSONDecodeError:
-            return JsonResponse({"message": "NO DATA"}, status=400)
+            return JsonResponse({"message" : "NO DATA"}, status=400)
         
         except ValidationError:
-            return JsonResponse({"message": "TYPE DOESNT MATCH"}, status=400)
+            return JsonResponse({"message" : "TYPE DOESNT MATCH"}, status=400)
     
     @login_decorator
     def get(self, request, movie_id):
         
-        if Rating.objects.filter(user_id=request.user.id, movie_id = movie_id).exists():
+        if Rating.objects.filter(user_id=request.user.id, movie_id=movie_id).exists():
                 rate = Rating.objects.get(user_id=request.user.id, movie_id = movie_id).rate
         else:
             rate = 0.0
 
-        return JsonResponse({"user_rate": rate}, status=200)
+        return JsonResponse({"user_rate" : rate}, status=200)
 
 
 class GenreMovieView(View):
     def get(self, request):  
         OFFSET = 0
-        LIMIT = 16
-        q = Q()
+        LIMIT  = 16
+        q      = Q()
 
         try:
             movie_id = request.GET.get('id', None)
             
             if not movie_id:
-                return JsonResponse({"message": "NO QUERY STRING"}, status=404)  
+                return JsonResponse({"message" : "NO QUERY STRING"}, status=404)  
             
             if not MovieGenre.objects.filter(movie_id=movie_id).exists():
-                return JsonResponse({"message": "QUERY DOES NOT MATCH"}, status=404)
+                return JsonResponse({"message" : "QUERY DOES NOT MATCH"}, status=404)
 
             genres = MovieGenre.objects.filter(movie_id=movie_id)
 
@@ -119,17 +119,17 @@ class GenreMovieView(View):
             movie = MovieGenre.objects.select_related('movie').filter(q).exclude(movie_id=movie_id)
             
             related = [{
-                "movie_id": mv.movie.id,
-                "title": mv.movie.title,
-                "avg": mv.movie.average_rating,
-                "poster": mv.movie.poster_image,    
+                "movie_id" : mv.movie.id,
+                "title"    : mv.movie.title,
+                "avg"      : mv.movie.average_rating,
+                "poster"   : mv.movie.poster_image,    
             }for mv in movie]
             
             related_movies = list({rel['title']: rel for rel in related}.values())
             
             return JsonResponse({
-                "message": "SUCCESS",
-                "related_movies": related_movies[OFFSET:LIMIT],
+                "message" : "SUCCESS",
+                "related_movies" : related_movies[OFFSET:LIMIT],
             },status=200)
         
         except KeyError:
@@ -139,10 +139,10 @@ class GenreMovieView(View):
 class MovieDetailView(View):
     def get(self, request, movie_id):
         try:
-            if not Movie.objects.filter(id = movie_id).exists():
-                return JsonResponse({'MESSAGE':'Movie Not Exists'}, status = 404)
+            if not Movie.objects.filter(id=movie_id).exists():
+                return JsonResponse({'MESSAGE' : 'Movie Not Exists'}, status = 404)
 
-            movie = Movie.objects.get(id = movie_id)
+            movie = Movie.objects.get(id=movie_id)
 
             movie_details = {
                 'title'          : movie.title,
@@ -157,17 +157,17 @@ class MovieDetailView(View):
                         'name'  : participants.participant.name,
                         'role'  : participants.role,
                         'image' : participants.participant.image_url 
-                    } for participants in MovieParticipant.objects.filter(movie = movie_id)
+                    } for participants in MovieParticipant.objects.filter(movie=movie_id)
                 ],
                 'description'    : movie.description,
                 'rating_users'   : movie.rating_set.count(),
-                'average_rating' : round(Rating.objects.filter(movie_id = movie).aggregate(Avg('rate'))['rate__avg'], 1)
+                'average_rating' : round(Rating.objects.filter(movie_id=movie).aggregate(Avg('rate'))['rate__avg'], 1)
             }
 
-            return JsonResponse({'movie_info': movie_details}, status = 200)
+            return JsonResponse({'movie_info' : movie_details}, status = 200)
 
         except KeyError:
-            JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+            JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status=400)
 
 
 class CommentView(View):
@@ -176,7 +176,7 @@ class CommentView(View):
         try:    
             data    = json.loads(request.body)
             user_id = request.user.id
-            rating = Rating.objects.get(user_id=user_id,movie_id=movie_id)
+            rating  = Rating.objects.get(user_id=user_id,movie_id=movie_id)
 
             if not rating:
                 return JsonResponse({"MESSAGE" : "ENTER_RATING_FIRST"}, status=404)
