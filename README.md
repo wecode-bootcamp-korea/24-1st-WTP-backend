@@ -58,7 +58,10 @@
 - MovieView   : Q객체, order_by, distinct, offset, limit을 활용한 영화리스트 조회 기능 구현
 
 `이무현`
-- 추후 업데이트 예정
+- Loginview, Login_decorator : 로그인 로직 구현 및 jwt 통한 인증/인가
+- RateView : 사용자의 영화 평점 업데이트 및 영화 평균 평점 aggregate을 통해 반환
+- GenreMovieView : 영화와 관련된 장르의 영화 필터링하여 반환, 쿼리 최적화 진행
+- MyPageView : 마이페이지 구현(데코레이터로 사용자 확인), select_related 통한 쿼리 최적화
 
 
 ## EndPoint
